@@ -1,7 +1,5 @@
 # Skill Scope PRD
 
-2026-11-19 · Draft
-
 Terms are defined in [GLOSSARY.md](../GLOSSARY.md).
 
 ## 1. Problem Statement
@@ -75,35 +73,20 @@ As a developer, I want to choose the model used for grading and cap the spending
 | Grading cost: grading spend per session | Local spend log |
 | Adapter coverage: every first-batch adapter parses real logs correctly | Per-adapter tests |
 
-Concrete targets are set by each module owner.
-
 ## 5. Architecture and Technical Constraints
 
 - Architecture diagram (shared by both run modes; modules and data flow): [archify/skill-scope-architecture](archify/skill-scope-architecture/index.html)
 - Runtime connected mode data-flow sequence diagram (connecting to the server, then collecting data, grading and uploading): [archify/skill-scope-runtime-sequence](archify/skill-scope-runtime-sequence/index.html)
-
-Each diagram's source is the `candidate.json` in the same folder; editing rules are in [archify/rule.md](archify/rule.md).
-
 - Two run modes:
   - **Local mode**: the user starts grading manually through the CLI; the CLI calls the Adapter and Grader directly, results stay local, and no background process is needed.
   - **Runtime connected mode**: adds a background process (the Runtime daemon) to local mode. The connection follows multica: the CLI logs in through the browser to obtain a token, and the daemon registers with the server and stays connected. After each session the daemon queues it, calls the Adapter and Grader, enforces the spending cap, and uploads results read from the local store.
 - Grading runs on the user's machine and raw sessions never leave it; the server receives only evaluation results and excerpts the user approved.
 - Versions of skills, subagents and rule files are recorded by a hook when each session starts; sessions from before installation are not processed.
-- The tech stack is TypeScript throughout; the CLI, server and web UI share one set of data structure definitions.
-- Multiple agents: the adapter interface is open. The first batch supports Claude Code, Codex, Antigravity, DeepSeek Harness and WorkBuddy; other agents plug in later through the same interface. Per-agent log details are in [explore/agent-logs.md](explore/agent-logs.md).
+- The tech stack is TypeScript throughout.
+- Multiple agents: the adapter interface is open. The first batch supports Claude Code, Codex, Antigravity, DeepSeek Harness and WorkBuddy; other agents plug in later through the same interface.
 - External dependencies: each agent's local log format and hook mechanism. These are not committed public interfaces and can change at any time.
 - Deployment: the server can be self-hosted, and an official cloud is also operated.
 - Risks: the biggest risks are adapters whose log formats have not yet been verified on a real install, and the official cloud.
-- Quality: every change to the grading logic must be checked for accuracy regressions.
-
-Open questions for module owners:
-- What an evaluation result contains and how it is produced
-- How to measure whether evaluation results are accurate
-- How to split a Rule File into Rule Items
-- How to compare versions fairly
-- How each agent's adapter is implemented
-- The server's team model and report format
-- Whether, and how, local mode uploads its evaluation results
 
 ## 6. Scope
 
