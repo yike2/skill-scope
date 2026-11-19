@@ -1,0 +1,420 @@
+{
+  "schema_version": 1,
+  "diagram_type": "architecture",
+  "meta": {
+    "title": "Skill Scope Architecture",
+    "locale": "en",
+    "output": "docs/archify/skill-scope-architecture/index.html",
+    "quality_profile": "showcase",
+    "visual_preset": "editorial"
+  },
+  "components": [
+    {
+      "id": "developer",
+      "type": "external",
+      "label": "Developer",
+      "sublabel": "works with agents",
+      "icon": "person",
+      "pos": [
+        40,
+        100
+      ],
+      "size": [
+        130,
+        64
+      ]
+    },
+    {
+      "id": "cli",
+      "type": "frontend",
+      "label": "skillscope CLI",
+      "sublabel": "login · start runtime",
+      "pos": [
+        520,
+        100
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "author",
+      "type": "external",
+      "label": "Skill / rule author",
+      "sublabel": "reads team reports",
+      "icon": "person",
+      "pos": [
+        1300,
+        100
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "agent",
+      "type": "external",
+      "label": "Coding agent",
+      "sublabel": "Claude Code · Codex · …",
+      "pos": [
+        270,
+        230
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "hook",
+      "type": "backend",
+      "label": "Hook",
+      "sublabel": "session + file versions",
+      "pos": [
+        520,
+        230
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "webui",
+      "type": "frontend",
+      "label": "Web UI",
+      "sublabel": "team reports",
+      "pos": [
+        1300,
+        230
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "logs",
+      "type": "database",
+      "label": "Session logs",
+      "sublabel": "agent transcripts",
+      "pos": [
+        270,
+        370
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "adapter",
+      "type": "backend",
+      "label": "Adapter",
+      "sublabel": "logs → unified session",
+      "pos": [
+        520,
+        370
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "daemon",
+      "type": "backend",
+      "label": "Runtime daemon",
+      "sublabel": "runtime mode only",
+      "pos": [
+        800,
+        370
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "server",
+      "type": "backend",
+      "label": "Team server",
+      "sublabel": "aggregate · compare",
+      "pos": [
+        1300,
+        370
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "model",
+      "type": "external",
+      "label": "Model provider",
+      "sublabel": "user's own API key",
+      "pos": [
+        40,
+        510
+      ],
+      "size": [
+        130,
+        64
+      ]
+    },
+    {
+      "id": "grader",
+      "type": "backend",
+      "label": "Grader",
+      "sublabel": "evaluation results",
+      "pos": [
+        520,
+        510
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "lstore",
+      "type": "database",
+      "label": "Local store",
+      "sublabel": "e.g. SQLite",
+      "pos": [
+        800,
+        510
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "rstore",
+      "type": "database",
+      "label": "Results store",
+      "sublabel": "team results",
+      "pos": [
+        1300,
+        510
+      ],
+      "size": [
+        150,
+        64
+      ]
+    },
+    {
+      "id": "files",
+      "type": "database",
+      "label": "Skills & rules",
+      "sublabel": "team-authored files",
+      "pos": [
+        520,
+        650
+      ],
+      "size": [
+        150,
+        64
+      ]
+    }
+  ],
+  "boundaries": [
+    {
+      "kind": "region",
+      "label": "User machine",
+      "wraps": [
+        "cli",
+        "agent",
+        "hook",
+        "logs",
+        "adapter",
+        "daemon",
+        "grader",
+        "lstore",
+        "files"
+      ],
+      "pad": 56
+    },
+    {
+      "kind": "region",
+      "label": "Coding agent",
+      "wraps": [
+        "agent",
+        "logs"
+      ],
+      "pad": 22
+    },
+    {
+      "kind": "region",
+      "label": "Skill Scope",
+      "wraps": [
+        "cli",
+        "hook",
+        "adapter",
+        "daemon",
+        "grader",
+        "lstore"
+      ],
+      "pad": 22
+    },
+    {
+      "kind": "region",
+      "label": "Server",
+      "wraps": [
+        "webui",
+        "server",
+        "rstore"
+      ]
+    }
+  ],
+  "connections": [
+    {
+      "id": "dev-cli",
+      "from": "developer",
+      "to": "cli",
+      "label": "login · start"
+    },
+    {
+      "id": "dev-agent",
+      "from": "developer",
+      "to": "agent",
+      "label": "uses",
+      "variant": "emphasis"
+    },
+    {
+      "id": "cli-server",
+      "from": "cli",
+      "to": "server",
+      "label": "OAuth login",
+      "variant": "security"
+    },
+    {
+      "id": "cli-daemon",
+      "from": "cli",
+      "to": "daemon",
+      "label": "start"
+    },
+    {
+      "id": "agent-hook",
+      "from": "agent",
+      "to": "hook",
+      "label": "events"
+    },
+    {
+      "id": "agent-logs",
+      "from": "agent",
+      "to": "logs",
+      "label": "writes"
+    },
+    {
+      "id": "daemon-hook",
+      "from": "daemon",
+      "to": "hook",
+      "label": "install"
+    },
+    {
+      "id": "hook-daemon",
+      "from": "hook",
+      "to": "daemon",
+      "label": "start / end + versions"
+    },
+    {
+      "id": "daemon-adapter",
+      "from": "daemon",
+      "to": "adapter",
+      "label": "parse session",
+      "variant": "emphasis"
+    },
+    {
+      "id": "logs-adapter",
+      "from": "logs",
+      "to": "adapter",
+      "label": "transcripts"
+    },
+    {
+      "id": "adapter-grader",
+      "from": "adapter",
+      "to": "grader",
+      "label": "unified session",
+      "variant": "emphasis"
+    },
+    {
+      "id": "grader-prompt",
+      "from": "grader",
+      "to": "model",
+      "label": "prompt"
+    },
+    {
+      "id": "model-response",
+      "from": "model",
+      "to": "grader",
+      "label": "response"
+    },
+    {
+      "id": "files-grader",
+      "from": "files",
+      "to": "grader",
+      "label": "skill / rule text"
+    },
+    {
+      "id": "grader-write",
+      "from": "grader",
+      "to": "lstore",
+      "label": "results",
+      "variant": "emphasis"
+    },
+    {
+      "id": "daemon-versions",
+      "from": "daemon",
+      "to": "lstore",
+      "label": "save versions"
+    },
+    {
+      "id": "lstore-daemon",
+      "from": "lstore",
+      "to": "daemon",
+      "label": "pending results"
+    },
+    {
+      "id": "daemon-upload",
+      "from": "daemon",
+      "to": "server",
+      "label": "register · upload",
+      "variant": "security"
+    },
+    {
+      "id": "server-daemon",
+      "from": "server",
+      "to": "daemon",
+      "label": "WebSocket · ack"
+    },
+    {
+      "id": "server-store",
+      "from": "server",
+      "to": "rstore",
+      "label": "store"
+    },
+    {
+      "id": "webui-query",
+      "from": "webui",
+      "to": "server",
+      "label": "query"
+    },
+    {
+      "id": "server-webui",
+      "from": "server",
+      "to": "webui",
+      "label": "aggregated"
+    },
+    {
+      "id": "author-webui",
+      "from": "author",
+      "to": "webui",
+      "label": "views"
+    }
+  ]
+}

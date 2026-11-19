@@ -1,0 +1,363 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Skill Scope · Runtime Mode Data Flow",
+    "locale": "en",
+    "output": "docs/archify/skill-scope-runtime-sequence/index.html",
+    "quality_profile": "showcase",
+    "visual_preset": "editorial"
+  },
+  "participants": [
+    {
+      "id": "dev",
+      "type": "external",
+      "label": "Developer",
+      "sublabel": "user",
+      "icon": "person"
+    },
+    {
+      "id": "cli",
+      "type": "frontend",
+      "label": "CLI",
+      "sublabel": "skillscope"
+    },
+    {
+      "id": "agent",
+      "type": "external",
+      "label": "Coding agent",
+      "sublabel": "logs + hooks"
+    },
+    {
+      "id": "daemon",
+      "type": "backend",
+      "label": "Runtime daemon",
+      "sublabel": "local process"
+    },
+    {
+      "id": "adapter",
+      "type": "backend",
+      "label": "Adapter",
+      "sublabel": "unified session"
+    },
+    {
+      "id": "grader",
+      "type": "backend",
+      "label": "Grader",
+      "sublabel": "evaluation"
+    },
+    {
+      "id": "model",
+      "type": "external",
+      "label": "Model",
+      "sublabel": "user's key"
+    },
+    {
+      "id": "lstore",
+      "type": "database",
+      "label": "Local store",
+      "sublabel": "e.g. SQLite"
+    },
+    {
+      "id": "server",
+      "type": "backend",
+      "label": "Team server",
+      "sublabel": "self-host / cloud"
+    }
+  ],
+  "segments": [
+    {
+      "from": 150,
+      "to": 380,
+      "label": "Connect"
+    },
+    {
+      "from": 392,
+      "to": 490,
+      "label": "Session"
+    },
+    {
+      "from": 500,
+      "to": 735,
+      "label": "Grade after the session"
+    },
+    {
+      "from": 742,
+      "to": 870,
+      "label": "Upload"
+    }
+  ],
+  "messages": [
+    {
+      "id": "login",
+      "from": "dev",
+      "to": "cli",
+      "y": 160,
+      "label": "login"
+    },
+    {
+      "id": "oauth",
+      "from": "cli",
+      "to": "server",
+      "y": 188,
+      "label": "browser OAuth",
+      "variant": "security"
+    },
+    {
+      "id": "token",
+      "from": "server",
+      "to": "cli",
+      "y": 216,
+      "label": "access token",
+      "variant": "return"
+    },
+    {
+      "id": "start",
+      "from": "dev",
+      "to": "cli",
+      "y": 244,
+      "label": "start runtime"
+    },
+    {
+      "id": "spawn",
+      "from": "cli",
+      "to": "daemon",
+      "y": 272,
+      "label": "start daemon"
+    },
+    {
+      "id": "detect",
+      "from": "daemon",
+      "to": "agent",
+      "y": 300,
+      "label": "detect agents, install hooks"
+    },
+    {
+      "id": "register",
+      "from": "daemon",
+      "to": "server",
+      "y": 328,
+      "label": "register runtime",
+      "variant": "security"
+    },
+    {
+      "id": "ws",
+      "from": "server",
+      "to": "daemon",
+      "y": 356,
+      "label": "WebSocket + heartbeat",
+      "variant": "return",
+      "note": "keeps the runtime online"
+    },
+    {
+      "id": "work",
+      "from": "dev",
+      "to": "agent",
+      "y": 404,
+      "label": "work as usual",
+      "variant": "emphasis"
+    },
+    {
+      "id": "sstart",
+      "from": "agent",
+      "to": "daemon",
+      "y": 432,
+      "label": "session start + file versions",
+      "note": "SessionStart hook"
+    },
+    {
+      "id": "versions",
+      "from": "daemon",
+      "to": "lstore",
+      "y": 478,
+      "label": "save versions"
+    },
+    {
+      "id": "send",
+      "from": "agent",
+      "to": "daemon",
+      "y": 510,
+      "label": "session ended",
+      "variant": "dashed",
+      "note": "SessionEnd hook"
+    },
+    {
+      "id": "parse",
+      "from": "daemon",
+      "to": "adapter",
+      "y": 556,
+      "label": "parse session",
+      "variant": "emphasis"
+    },
+    {
+      "id": "read",
+      "from": "adapter",
+      "to": "agent",
+      "y": 584,
+      "label": "read transcript"
+    },
+    {
+      "id": "transcript",
+      "from": "agent",
+      "to": "adapter",
+      "y": 612,
+      "label": "transcript",
+      "variant": "return"
+    },
+    {
+      "id": "unified",
+      "from": "adapter",
+      "to": "grader",
+      "y": 640,
+      "label": "unified session",
+      "variant": "emphasis"
+    },
+    {
+      "id": "prompt",
+      "from": "grader",
+      "to": "model",
+      "y": 668,
+      "label": "prompt"
+    },
+    {
+      "id": "response",
+      "from": "model",
+      "to": "grader",
+      "y": 696,
+      "label": "response",
+      "variant": "return"
+    },
+    {
+      "id": "write",
+      "from": "grader",
+      "to": "lstore",
+      "y": 724,
+      "label": "write results",
+      "variant": "emphasis"
+    },
+    {
+      "id": "pending",
+      "from": "daemon",
+      "to": "lstore",
+      "y": 752,
+      "label": "read pending"
+    },
+    {
+      "id": "results",
+      "from": "lstore",
+      "to": "daemon",
+      "y": 780,
+      "label": "results",
+      "variant": "return"
+    },
+    {
+      "id": "upload",
+      "from": "daemon",
+      "to": "server",
+      "y": 808,
+      "label": "upload results",
+      "variant": "security",
+      "note": "results only, no raw session"
+    },
+    {
+      "id": "ack",
+      "from": "server",
+      "to": "daemon",
+      "y": 854,
+      "label": "stored",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "dev",
+      "from": 155,
+      "to": 249,
+      "type": "external"
+    },
+    {
+      "participant": "dev",
+      "from": 394,
+      "to": 418,
+      "type": "external"
+    },
+    {
+      "participant": "cli",
+      "from": 155,
+      "to": 278,
+      "type": "frontend"
+    },
+    {
+      "participant": "agent",
+      "from": 290,
+      "to": 316,
+      "type": "external"
+    },
+    {
+      "participant": "agent",
+      "from": 399,
+      "to": 515,
+      "type": "external"
+    },
+    {
+      "participant": "agent",
+      "from": 579,
+      "to": 617,
+      "type": "external"
+    },
+    {
+      "participant": "daemon",
+      "from": 267,
+      "to": 866,
+      "type": "backend"
+    },
+    {
+      "participant": "adapter",
+      "from": 551,
+      "to": 645,
+      "type": "backend"
+    },
+    {
+      "participant": "grader",
+      "from": 635,
+      "to": 729,
+      "type": "backend"
+    },
+    {
+      "participant": "model",
+      "from": 663,
+      "to": 701,
+      "type": "external"
+    },
+    {
+      "participant": "lstore",
+      "from": 468,
+      "to": 492,
+      "type": "database"
+    },
+    {
+      "participant": "lstore",
+      "from": 719,
+      "to": 785,
+      "type": "database"
+    },
+    {
+      "participant": "server",
+      "from": 183,
+      "to": 221,
+      "type": "backend"
+    },
+    {
+      "participant": "server",
+      "from": 323,
+      "to": 361,
+      "type": "backend"
+    },
+    {
+      "participant": "server",
+      "from": 803,
+      "to": 859,
+      "type": "backend"
+    }
+  ]
+}
