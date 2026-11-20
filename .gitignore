@@ -2,3 +2,4 @@ docs/archify/**/index.*.json
 node_modules/
 coverage/
 dist/
+.claude/settings.local.json

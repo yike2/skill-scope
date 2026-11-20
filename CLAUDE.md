@@ -109,6 +109,8 @@ Do:
 Don't:
 
 - Read or print `.env` files, tokens, model keys or other secrets.
+- Work around the permission rules in `.claude/settings.json` (shared; personal overrides go in
+  the git-ignored `.claude/settings.local.json`).
 - Commit, push or merge without explicit approval.
 - Edit `docs/` or `GLOSSARY.md` unless the task is about them. `docs/`, `GLOSSARY.md` and
   `pnpm-lock.yaml` are excluded from Prettier and ESLint on purpose: never reformat them.
