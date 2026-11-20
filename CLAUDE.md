@@ -124,7 +124,7 @@ Don't:
 - [ ] `pnpm audit` reports no high or critical issues
 - [ ] The checklist in `docs/dev/security.md` has been reviewed for the change
 - [ ] Related docs are updated (this file, `docs/dev/`, PRD or glossary if the task covers them)
-- [ ] CI is green (CI not set up yet, see #3)
+- [ ] CI is green (`.github/workflows/ci.yml`)
 
 ## Docs
 
