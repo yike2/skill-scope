@@ -1,0 +1,662 @@
+ ▐▛███▛█   Claude Code v2.1.329
+▝▜██████▀  Opus 5.5 · Claude Enterprise
+ ▝▝   ▝▝   ~/skill-scope
+
+
+✻ Conversation compacted (ctrl+o for history)
+
+
+⏺ I created CLAUDE.md at the repo root. It covers:
+
+  - What the project is: a pointer to docs/prd.md and GLOSSARY.md, and a rule to
+    use the glossary's terms (for example "Session", not "transcript").
+  - Commands: install, format, lint, typecheck and unit tests, plus how to run
+    one test file or one test by name. I ran the run-one-test-by-name command
+    and it passes.
+  - Things you only learn by reading several config files together:
+    - There's no build step; packages export their .ts source directly.
+    - All tests run from the one root Vitest config, and the run fails if
+      coverage drops below 70%.
+    - Because of the TypeScript settings, relative imports need a .js extension
+      and type-only imports must use import type.
+    - New packages follow a set pattern so pnpm -r typecheck picks them up.
+    - Dependencies are pinned to exact versions, chosen from releases at least
+      two weeks old. TypeScript is held at 6.0.x because of a version limit in
+      typescript-eslint.
+  - Docs: docs/ and GLOSSARY.md are deliberately left out of formatting and
+    linting. It also summarizes the diagram rules in docs/archify/rule.md.
+  - Git: the branch naming (<type>/<issue#>-<slug>) and the commit format with
+    the issue number, based on your existing history.
+
+  I ran Prettier on CLAUDE.md because it isn't excluded and would otherwise have
+  failed pnpm format:check. That check still fails, but only because of your
+  untracked hw4-01-plan.md, which I didn't touch.
+
+  There's no README, Cursor or Copilot rules, or Codex/Gemini config in the
+  repo, so nothing else needed importing. I haven't committed anything.
+
+✻ Churned for 51s · done 9:22 PM
+
+※ recap: I wrote a CLAUDE.md for the skill-scope repo and formatted it so it passes Prettier. Next, you can review it and commit it on the docs/2-claude-md branch. (turn off recaps in /config)
+
+❯ /compact Keep only what you learned about this repo's structure, tooling and  
+conventions while writing CLAUDE.md. Drop raw command outputs.                  
+  ⎿  Compacted (ctrl+o to see full summary)
+  ⎿  Skills restored (init)
+
+❯ Task: issue #2 — revise CLAUDE.md (the /init version is already committed).   
+                                                                                
+  Goal: a CLAUDE.md of about 150 lines (hard limit 200) that meets the course   
+  requirements, with details moved into imported files.                         
+                                                                                
+  Files you may create or edit:                                                 
+  - CLAUDE.md                                                                   
+  - docs/dev/workflow.md (new)                                                  
+  - docs/dev/security.md (new)                                                  
+    Do not edit anything else, including docs/prd.md, GLOSSARY.md and           
+  docs/explore or docs/archify.                                                 
+                                                                                
+  CLAUDE.md must contain:                                                       
+  1. Imports using @ syntax: @docs/prd.md, @GLOSSARY.md, @docs/dev/workflow.md, 
+  @docs/dev/security.md.                                                        
+  2. Architecture decisions: two run modes (Local mode and Runtime connected    
+  mode); grading runs on the user's machine with the user's own model key; raw  
+  sessions never leave the machine, the server receives only Evaluation Results 
+  and approved excerpts; only Claude Code is supported for now (other agents    
+  later through the same adapter interface).                                    
+  3. Tech stack: TypeScript, Node 22, pnpm workspace, Vitest, ESLint, Prettier. 
+  Planned: SQLite local store; apps/web with Next.js + Postgres + auth.         
+  Deployment: TBD — partner's VPS (Docker Compose + Caddy) as in our previous   
+  project, or Vercel with preview deploys as the course rubric expects.         
+  4. Commands and coding conventions: keep the accurate parts of the current    
+  file.                                                                         
+  5. Testing strategy: strict TDD — commit failing tests first, then the        
+  minimum implementation, then refactor (history reads test → feat → refactor). 
+  Unit and integration tests with Vitest, Playwright E2E later, 70% coverage    
+  minimum. Never change a test to make it pass; fixing a wrong test is its own  
+  test(...) commit. Test data must include items that should be filtered out.   
+  6. Do's and don'ts, including: show a plan and wait for approval before       
+  editing; list unclear points as open questions instead of inventing; never    
+  read or print .env files or secrets; never commit, push or merge without      
+  approval; do not edit docs/ or GLOSSARY.md unless the task is about them;     
+  everything in the repo is in English.                                         
+  7. Definition of Done: format, lint, typecheck and tests pass; coverage at    
+  least 70%; pnpm audit has no high or critical issues; security checklist in   
+  docs/dev/security.md reviewed; related docs updated; CI green.                
+                                                                                
+  docs/dev/workflow.md (concise): branch naming type/issue#-slug; commit format 
+  type(scope): summary (#issue), scope required, types limited to feat, fix,    
+  docs, test, refactor, chore, ci, title at most 72 characters, exactly one     
+  issue number; stage files by name and check git diff --cached --stat; PR body 
+  sections Summary / Commits / Checks / Out of scope / AI Disclosure (tool,     
+  approx. % AI-generated, human review), Closes #N or Part of #N; merge with a  
+  merge commit; session logs and screenshots go in docs/evidence/.              
+                                                                                
+  docs/dev/security.md (concise): the current OWASP Top 10, one or two lines    
+  each on how it applies to Skill Scope (CLI login tokens, team server access   
+  control between teams, SQL in the local store and server, hooks installed     
+  into agent config, never logging session content, dependency scanning). If    
+  you are not sure which edition is current, list that as an open question.     
+                                                                                
+  Show the plan with a line-count estimate for each file, then stop and wait    
+  for my approval.                                                              
+  ⎿  Read docs/prd.md (98 lines)
+  ⎿  Read GLOSSARY.md (50 lines)
+
+  Listed 1 directory (ctrl+o to expand)
+
+⏺ Updated plan
+  ⎿  /plan to preview
+  ⎿  Rejected Claude's plan:
+     ╭─────────────────────────────────────────────────────────────────────────╮
+     │ Plan: issue #2 — revise CLAUDE.md, add docs/dev/workflow.md and         │
+     │ docs/dev/security.md                                                    │
+     │                                                                         │
+     │ Context                                                                 │
+     │                                                                         │
+     │ The /init CLAUDE.md (45 lines, committed in 1b0e940) covers commands    │
+     │ and conventions only. The course needs a fuller CLAUDE.md (~150 lines,  │
+     │ max 200) with imports, architecture decisions, stack, testing strategy, │
+     │ do's/don'ts and a Definition of Done. Longer details move into two new  │
+     │ imported files. Only these three files change.                          │
+     │                                                                         │
+     │ Files                                                                   │
+     │                                                                         │
+     │ 1. CLAUDE.md — rewrite, about 150 lines                                 │
+     │                                                                         │
+     │ Section: Header                                                         │
+     │ Content: Required /init header                                          │
+     │ Est. lines: 4                                                           │
+     │ ────────────────────────────────────────                                │
+     │ Section: Context imports                                                │
+     │ Content: @docs/prd.md, @GLOSSARY.md, @docs/dev/workflow.md,             │
+     │   @docs/dev/security.md, one line each saying what each covers;         │
+     │   glossary-terms rule                                                   │
+     │ Est. lines: 12                                                          │
+     │ ────────────────────────────────────────                                │
+     │ Section: Architecture decisions                                         │
+     │ Content: Local mode vs Runtime connected mode (CLI → Adapter →          │
+     │   Grader; daemon adds queue, spending cap, upload); grading on the      │
+     │   user's machine with the user's own model key; raw Sessions never      │
+     │   leave the machine, server gets only Evaluation Results and            │
+     │   approved excerpts; Rule File/Skill/Subagent versions recorded by      │
+     │   a session-start hook; Claude Code adapter only for now, other         │
+     │   agents later through the same adapter interface; current state =      │
+     │   skeleton + placeholder packages/core                                  │
+     │ Est. lines: 18                                                          │
+     │ ────────────────────────────────────────                                │
+     │ Section: Tech stack                                                     │
+     │ Content: Current: TypeScript (strict, NodeNext), Node 22, pnpm 9        │
+     │   workspace, Vitest + v8 coverage, ESLint flat config, Prettier.        │
+     │   Planned: SQLite local store; apps/web with Next.js + Postgres +       │
+     │   auth; packages adapter/grader/cli/daemon. Deployment: TBD, either     │
+     │   partner's VPS (Docker Compose + Caddy) or Vercel with preview         │
+     │   deploys; don't pick one without a decision                            │
+     │ Est. lines: 16                                                          │
+     │ ────────────────────────────────────────                                │
+     │ Section: Commands                                                       │
+     │ Content: Keep the current block as is (install, format:check, lint,     │
+     │   typecheck, test:unit, single file, single test), plus pnpm audit      │
+     │   --audit-level high; no build step                                     │
+     │ Est. lines: 16                                                          │
+     │ ────────────────────────────────────────                                │
+     │ Section: Coding conventions                                             │
+     │ Content: Keep the current accurate bullets: .js relative imports,       │
+     │   import type, noUncheckedIndexedAccess, package template,              │
+     │   exact-version deps with the 2-week rule and the TS 6.0.x peer         │
+     │   pin, Prettier settings, tests next to source                          │
+     │ Est. lines: 14                                                          │
+     │ ────────────────────────────────────────                                │
+     │ Section: Testing strategy                                               │
+     │ Content: Strict TDD: failing test commit → minimum implementation →     │
+     │   refactor (history reads test → feat → refactor); Vitest unit +        │
+     │   integration, Playwright E2E later; 70% coverage enforced by           │
+     │   vitest.config.ts; never change a test to make it pass, a wrong        │
+     │   test gets its own test(...) commit; test data must include items      │
+     │   that should be filtered out (e.g. Sessions from before install,       │
+     │   unrelated Skills, Rule Items that don't apply)                        │
+     │ Est. lines: 16                                                          │
+     │ ────────────────────────────────────────                                │
+     │ Section: Do's and don'ts                                                │
+     │ Content: Show a plan and wait for approval before editing; list         │
+     │   unclear points as open questions; never read or print .env files      │
+     │   or secrets; never commit/push/merge without approval; don't edit      │
+     │   docs/ or GLOSSARY.md unless the task is about them (docs/dev/ and     │
+     │   docs/evidence/ when the task calls for it); never reformat docs;      │
+     │   everything in English; don't scaffold planned packages unless         │
+     │   asked; use glossary terms                                             │
+     │ Est. lines: 16                                                          │
+     │ ────────────────────────────────────────                                │
+     │ Section: Definition of Done                                             │
+     │ Content: Checklist: format:check, lint, typecheck, test:unit pass;      │
+     │   coverage ≥ 70%; pnpm audit no high/critical; docs/dev/security.md     │
+     │   checklist reviewed; related docs updated; CI green                    │
+     │ Est. lines: 12                                                          │
+     │ ────────────────────────────────────────                                │
+     │ Section: Docs pointers                                                  │
+     │ Content: docs/explore/ index, docs/archify/rule.md diagram rules        │
+     │   (short, kept from the current file), docs/evidence/                   │
+     │ Est. lines: 8                                                           │
+     │ ────────────────────────────────────────                                │
+     │ Section: Total                                                          │
+     │ Content:                                                                │
+     │ Est. lines: ~150                                                        │
+     │                                                                         │
+     │ Git branch/commit/PR details move to workflow.md; CLAUDE.md keeps a     │
+     │ one-line pointer.                                                       │
+     │                                                                         │
+     │ 2. docs/dev/workflow.md — new, about 45 lines                           │
+     │                                                                         │
+     │ - Branches: <type>/<issue#>-<slug>.                                     │
+     │ - Commits: type(scope): summary (#issue); scope required; types limited │
+     │   to feat, fix, docs, test, refactor, chore, ci; title ≤ 72 chars;      │
+     │   exactly one issue number; example from history.                       │
+     │ - TDD commit order (test → feat → refactor), cross-referenced to        │
+     │   CLAUDE.md.                                                            │
+     │ - Staging: add files by name (never git add -A / .), then check git     │
+     │   diff --cached --stat.                                                 │
+     │ - PR body template: Summary / Commits / Checks / Out of scope / AI      │
+     │   Disclosure (tool, approx. % AI-generated, human review), plus Closes  │
+     │   #N or Part of #N.                                                     │
+     │ - Merge with a merge commit (no squash or rebase).                      │
+     │ - Evidence: session logs and screenshots go in docs/evidence/ (existing │
+     │   docs/evidence/hw4/).                                                  │
+     │                                                                         │
+     │ 3. docs/dev/security.md — new, about 50 lines                           │
+     │                                                                         │
+     │ OWASP Top 10:2025 (released Nov 2025, the current edition as far as I   │
+     │ know), 1–2 lines each mapped to Skill Scope:                            │
+     │ - A01 Broken Access Control: team server isolates teams; every query is │
+     │   scoped by team; members see only approved excerpts.                   │
+     │ - A02 Security Misconfiguration: safe defaults for                      │
+     │   server/Caddy/Next.js, no debug in prod, CORS limits.                  │
+     │ - A03 Software Supply Chain Failures: exact pins, 2-week rule, pnpm     │
+     │   audit, lockfile reviewed.                                             │
+     │ - A04 Cryptographic Failures: CLI login token stored with 0600 perms or │
+     │   the OS keychain; TLS only; model keys never uploaded.                 │
+     │ - A05 Injection: parameterized SQL in the SQLite store and Postgres; no │
+     │   shell interpolation of Session paths in hooks/adapters; prompt        │
+     │   injection from Session content into the Grader treated as untrusted.  │
+     │ - A06 Insecure Design: raw Sessions stay local by design; upload        │
+     │   allowlist; user approves excerpts.                                    │
+     │ - A07 Authentication Failures: browser-login token flow,                │
+     │   expiry/revocation, daemon registration.                               │
+     │ - A08 Software or Data Integrity Failures: hooks installed into agent   │
+     │   config are idempotent, minimal and removable; validate uploaded       │
+     │   payload shape.                                                        │
+     │ - A09 Security Logging and Alerting Failures: log events, never Session │
+     │   content, prompts, code or keys.                                       │
+     │ - A10 Mishandling of Exceptional Conditions: adapter parse failures     │
+     │   fail closed (skip, don't upload partial raw data); hooks never block  │
+     │   or crash the agent.                                                   │
+     │   Then a short "review checklist" used by the Definition of Done.       │
+     │                                                                         │
+     │ Open questions (I'll note these in the files rather than invent         │
+     │ answers)                                                                │
+     │                                                                         │
+     │ 1. PRD conflict: PRD §5 lists five first-batch adapters; you want       │
+     │    CLAUDE.md to say Claude Code only for now. I'll write "Claude Code   │
+     │    only for now; PRD lists the longer-term batch". PRD stays unchanged  │
+     │    as instructed. OK?                                                   │
+     │ 2. CI: no .github/workflows exists yet, so "CI green" in the DoD can't  │
+     │    be met. I'll keep the item and add "(CI not set up yet)". OK?        │
+     │ 3. Prettier: docs/ is in .prettierignore, so the new docs/dev/*.md      │
+     │    won't be format-checked. That's fine unless you want them formatted. │
+     │ 4. OWASP edition: I'm fairly confident 2025 is current, with the list   │
+     │    above. I can confirm with one web search before writing if you want. │
+     │                                                                         │
+     │ Verification                                                            │
+     │                                                                         │
+     │ - wc -l CLAUDE.md → 130–170, under 200.                                 │
+     │ - grep '^@\|@docs\|@GLOSSARY' CLAUDE.md shows all four imports.         │
+     │ - pnpm format:check (CLAUDE.md passes; the only known failure is the    │
+     │   untracked hw4 plan file, if it still exists), pnpm lint.              │
+     │ - git status shows only the three files changed. No commit until you    │
+     │   approve.                                                              │
+     ╰─────────────────────────────────────────────────────────────────────────╯
+
+❯ Answers:                                                                      
+  1. OK, write "Claude Code only for now; the PRD lists the longer-term batch". 
+  Leave the PRD unchanged.                                                      
+  2. OK, mark CI green as "(CI not set up yet, see #3)".                        
+  3. Fine, no formatting for docs/dev/.                                         
+  4. Confirmed: OWASP Top 10:2025 is current and your list and order are        
+  correct. In A01, mention that SSRF is now part of it. No web search needed.   
+                                                                                
+  Proceed with the plan. After writing, run the verification steps and show me  
+  wc -l for all three files and git status. Do not commit.                      
+
+  Read 1 file (ctrl+o to expand)
+
+⏺ Write(CLAUDE.md)
+  ⎿  Added 108 lines, removed 17 lines
+        2 
+        3  This file provides guidance to Claude Code (claude.ai/code) wh
+           en working with code in this repository.
+        4 
+        5 -## What this is                                               
+        5 +## Context imports                                            
+        6 
+        7 -Skill Scope evaluates how **Skills**, **Subagents** and indivi
+          -dual **Rule Items** (single instructions inside `CLAUDE.md` / 
+          -`AGENTS.md`) perform in _real_ coding-agent sessions, and comp
+          -ares results across versions of those files. Read `docs/prd.md
+          -` for scope and `GLOSSARY.md` for terminology; use the glossar
+          -y's terms and avoid its listed alternatives (e.g. "Session" no
+          -t "transcript", "Grader" not "judge", "Evaluation Result" not 
+          -"score").                                                     
+        7 +- @docs/prd.md: product requirements, user stories, scope and 
+          +what is out of scope.                                         
+        8 +- @GLOSSARY.md: the project's terms. Use them, and avoid the a
+          +lternatives it lists ("Session" not                           
+        9 +  "transcript", "Grader" not "judge", "Evaluation Result" not 
+          +"score", "Rule Item" not "rule").                             
+       10 +- @docs/dev/workflow.md: branch names, commit format, staging,
+          + PR template, merging, evidence.                              
+       11 +- @docs/dev/security.md: OWASP Top 10:2025 as it applies to Sk
+          +ill Scope, plus the review checklist.                         
+       12 
+       13 +Skill Scope evaluates how **Skills**, **Subagents** and indivi
+          +dual **Rule Items** perform in                                
+       14 +_real_ coding-agent Sessions, and compares Evaluation Results 
+          +across versions of those files.                               
+       15  The repo is at an early stage: only the tooling skeleton and a
+            placeholder `packages/core` exist.
+       16 
+       11 -## Commands                                                   
+       17 +## Architecture decisions                                     
+       18 
+       13 -Node 22 (`.nvmrc`), pnpm 9.15.9 (pinned via `packageManager`).
+       19 +- **Two run modes.**                                          
+       20 +  - **Local mode**: the user starts grading manually through t
+          +he CLI. The CLI calls the Adapter                             
+       21 +    and the Grader directly; results stay in the local store; 
+          +no background process.                                        
+       22 +  - **Runtime connected mode**: Local mode plus a background R
+          +untime daemon. The CLI logs in                                
+       23 +    through the browser to get a token; the daemon registers w
+          +ith the team server, queues each                              
+       24 +    finished Session, runs Adapter → Grader, enforces the spen
+          +ding cap and uploads results read                             
+       25 +    from the local store.                                     
+       26 +- **Grading is local.** The Grader runs on the user's machine 
+          +with the user's own model key.                                
+       27 +- **Raw Sessions never leave the machine.** The server receive
+          +s only Evaluation Results and                                 
+       28 +  excerpts the user explicitly approved. Never design a code p
+          +ath that uploads raw Session                                  
+       29 +  content, code or model keys.                                
+       30 +- **Versions are recorded at Session start** by a hook (Skill,
+          + Subagent and Rule File versions).                            
+       31 +  Sessions from before installation are not processed.        
+       32 +- **Agents:** Claude Code only for now; the PRD lists the long
+          +er-term batch. Other agents plug in                           
+       33 +  later through the same adapter interface, so keep agent-spec
+          +ific parsing inside the adapter.                              
+       34 +- Agent log formats and hook mechanisms are not stable public 
+          +interfaces; treat parsing as                                  
+       35 +  fallible and test adapters against real logs.               
+       36 
+       37 +## Tech stack                                                 
+       38 +                                                              
+       39 +Current:                                                      
+       40 +                                                              
+       41 +- TypeScript (strict, `NodeNext` modules), Node 22 (`.nvmrc`) 
+       42 +- pnpm 9.15.9 workspace over `packages/*` and `apps/*` (pinned
+          + via `packageManager`)                                        
+       43 +- Vitest with v8 coverage, ESLint (flat config), Prettier     
+       44 +                                                              
+       45 +Planned (not created yet; don't scaffold unless the task asks)
+          +:                                                             
+       46 +                                                              
+       47 +- Packages: adapter, grader, cli, daemon                      
+       48 +- Local store: SQLite                                         
+       49 +- `apps/web`: Next.js + Postgres + auth (team server and web U
+          +I)                                                            
+       50 +- Deployment: **TBD**. Either the partner's VPS (Docker Compos
+          +e + Caddy) as in our previous                                 
+       51 +  project, or Vercel with preview deploys as the course rubric
+          + expects. Don't pick one or add                               
+       52 +  deployment config without a decision.                       
+       53 +                                                              
+       54 +## Commands                                                   
+       55 +                                                              
+       56  ```sh
+       57  pnpm install
+       58  pnpm format:check        # prettier --check .   (pnpm format t
+           o write)
+       59  pnpm lint                # eslint . (flat config)
+       60  pnpm typecheck           # pnpm -r typecheck → tsc --noEmit in
+            each package
+       61  pnpm test:unit           # vitest run --coverage, from the roo
+           t
+       62 +pnpm audit --audit-level high                                 
+       63 
+       64  pnpm exec vitest run packages/core/src/index.test.ts   # singl
+           e file
+       65  pnpm exec vitest run -t "greets by name"               # singl
+           e test by name
+       66  ```
+       67 
+       26 -There is no build step: packages export their TypeScript sourc
+          -e directly (`"exports": { ".": "./src/index.ts" }`) and each p
+          -ackage only has a `typecheck` script.                         
+       68 +There is no build step: packages export their TypeScript sourc
+          +e directly                                                    
+       69 +(`"exports": { ".": "./src/index.ts" }`) and each package only
+          + has a `typecheck` script.                                    
+       70 
+       28 -## Layout and conventions                                     
+       71 +## Coding conventions                                         
+       72 
+       30 -- pnpm workspace over `packages/*` and `apps/*`. Planned (per 
+          -PRD §5, not yet created): adapter, grader, cli, daemon package
+          -s and `apps/web`. Don't scaffold these unless the task asks fo
+          -r it.                                                         
+       31 -- Vitest runs once from the root config (`vitest.config.ts`); 
+          -tests live next to source as `src/**/*.test.ts`. Coverage thre
+          -sholds are 70% for lines/functions/branches/statements — `test
+          -:unit` fails below that.                                      
+       32 -- TypeScript is strict with `noUncheckedIndexedAccess`, `verba
+          -timModuleSyntax` and `NodeNext` modules: relative imports need
+          - the `.js` extension, and type-only imports must use `import t
+          -ype`.                                                         
+       33 -- New packages: name `@skill-scope/<name>`, `"type": "module"`
+          -, a `tsconfig.json` extending `../../tsconfig.base.json`, and 
+          -a `typecheck` script so `pnpm -r typecheck` picks it up.      
+       34 -- Dependencies are pinned to exact versions (no `^`/`~`) and a
+          -ll dev tooling lives in the root `devDependencies`. When addin
+          -g or bumping a dependency, check release dates with `pnpm view
+          - <pkg> time --json` and pick a version released more than two 
+          -weeks ago; check peer ranges (e.g. TypeScript is held at 6.0.x
+          - because typescript-eslint 8.72.1 requires `<6.1.0`).         
+       73 +- Relative imports need the `.js` extension (`NodeNext`); type
+          +-only imports must use                                        
+       74 +  `import type` (`verbatimModuleSyntax`).                     
+       75 +- `noUncheckedIndexedAccess` is on: indexed reads are `T | und
+          +efined`, so handle the undefined case.                        
+       76 +- New packages: name `@skill-scope/<name>`, `"type": "module"`
+          +, `"private": true`, a                                        
+       77 +  `tsconfig.json` extending `../../tsconfig.base.json`, and a 
+          +`typecheck` script so                                         
+       78 +  `pnpm -r typecheck` picks it up.                            
+       79 +- Tests live next to source as `src/**/*.test.ts`; Vitest runs
+          + once from the root                                           
+       80 +  `vitest.config.ts`.                                         
+       81 +- Dependencies are pinned to exact versions (no `^`/`~`); all 
+          +dev tooling lives in the root                                 
+       82 +  `devDependencies`. When adding or bumping one, check `pnpm v
+          +iew <pkg> time --json` and pick a                             
+       83 +  version released more than two weeks ago. Check peer ranges:
+          + TypeScript is held at 6.0.x                                  
+       84 +  because typescript-eslint 8.72.1 requires `<6.1.0`.         
+       85  - Prettier: single quotes, print width 100.
+       86 
+       37 -## Docs                                                       
+       87 +## Testing strategy                                           
+       88 
+       39 -- `docs/`, `GLOSSARY.md` and `pnpm-lock.yaml` are excluded fro
+          -m Prettier and ESLint on purpose — never reformat them. Don't 
+          -edit `docs/` or `GLOSSARY.md` unless the task is about them.  
+       40 -- `docs/explore/` holds research and per-tool source analyses 
+          -of existing evaluation tools (`docs/explore/tools/README.md` i
+          -s the index).                                                 
+       41 -- Architecture diagrams in `docs/archify/` follow `docs/archif
+          -y/rule.md` (one stable folder per diagram, edit `candidate.jso
+          -n` and re-finalize in place, `meta.locale: "en"`, `visual_pres
+          -et: "editorial"`, run `default-light.py` after every finalize;
+          - `index.*.json` receipts are git-ignored).                    
+       89 +- **Strict TDD.** Commit the failing tests first, then the min
+          +imum implementation that makes them                           
+       90 +  pass, then refactor. The history should read `test(...)` → `
+          +feat(...)` → `refactor(...)`.                                 
+       91 +- Unit and integration tests with Vitest. Playwright E2E for `
+          +apps/web` later.                                              
+       92 +- Coverage minimum is 70% for lines, functions, branches and s
+          +tatements, enforced in                                        
+       93 +  `vitest.config.ts`; `pnpm test:unit` fails below it.        
+       94 +- **Never change a test to make it pass.** If a test is wrong,
+          + fixing it is its own `test(...)`                             
+       95 +  commit with the reason in the message.                      
+       96 +- Test data must include items that should be filtered out, no
+          +t only the happy path: e.g.                                   
+       97 +  Sessions from before installation, Skills that were never re
+          +levant, Rule Items that don't                                 
+       98 +  apply, malformed log lines, excerpts the user did not approv
+          +e.                                                            
+       99 
+       43 -## Git                                                        
+      100 +## Do's and don'ts                                            
+      101 
+       45 -Work is tracked by GitHub issues. Branches are named `<type>/<
+          -issue#>-<slug>` (e.g. `chore/1-monorepo-skeleton`), and commit
+          -s use Conventional Commits with a scope and the issue number, 
+          -e.g. `chore(repo): pnpm monorepo skeleton with lint, format an
+          -d test tooling (#1)`.                                         
+      102 +Do:                                                           
+      103 +                                                              
+      104 +- Show a plan and wait for approval before editing files.     
+      105 +- List unclear points as open questions instead of inventing a
+          +nswers.                                                       
+      106 +- Keep changes scoped to the task and the files it names.     
+      107 +- Use the glossary terms in code, comments, docs and commit me
+          +ssages.                                                       
+      108 +                                                              
+      109 +Don't:                                                        
+      110 +                                                              
+      111 +- Read or print `.env` files, tokens, model keys or other secr
+          +ets.                                                          
+      112 +- Commit, push or merge without explicit approval.            
+      113 +- Edit `docs/` or `GLOSSARY.md` unless the task is about them.
+          + `docs/`, `GLOSSARY.md` and                                   
+      114 +  `pnpm-lock.yaml` are excluded from Prettier and ESLint on pu
+          +rpose: never reformat them.                                   
+      115 +- Scaffold planned packages or pick a deployment target unprom
+          +pted.                                                         
+      116 +- Write anything in the repo in a language other than English.
+      117 +                                                              
+      118 +## Definition of Done                                         
+      119 +                                                              
+      120 +- [ ] `pnpm format:check`, `pnpm lint`, `pnpm typecheck` and `
+          +pnpm test:unit` pass                                          
+      121 +- [ ] Coverage is at least 70%                                
+      122 +- [ ] `pnpm audit` reports no high or critical issues         
+      123 +- [ ] The checklist in `docs/dev/security.md` has been reviewe
+          +d for the change                                              
+      124 +- [ ] Related docs are updated (this file, `docs/dev/`, PRD or
+          + glossary if the task covers them)                            
+      125 +- [ ] CI is green (CI not set up yet, see #3)                 
+      126 +                                                              
+      127 +## Docs                                                       
+      128 +                                                              
+      129 +- `docs/explore/`: research and per-tool source analyses of ex
+          +isting evaluation tools                                       
+      130 +  (`docs/explore/tools/README.md` is the index).              
+      131 +- `docs/archify/`: architecture diagrams following `docs/archi
+          +fy/rule.md` (one stable folder per                            
+      132 +  diagram, edit `candidate.json` and re-finalize in place, `me
+          +ta.locale: "en"`,                                             
+      133 +  `visual_preset: "editorial"`, run `default-light.py` after e
+          +very finalize; `index.*.json`                                 
+      134 +  receipts are git-ignored).                                  
+      135 +- `docs/evidence/`: session logs and screenshots per assignmen
+          +t.                                                            
+      136 +- Git workflow (branches, commits, PRs): see `docs/dev/workflo
+          +w.md`.                                                        
+
+⏺ Write(docs/dev/workflow.md)
+  ⎿  Wrote 56 lines to docs/dev/workflow.md
+      1 # Development workflow
+      2 
+      3 Every change is tracked by a GitHub issue.
+      4 
+      5 ## Branches
+      6 
+      7 `<type>/<issue#>-<slug>`, e.g. `chore/1-monorepo-skeleton`, `docs
+        /2-claude-md`.
+      8 
+      9 ## Commits
+     … +47 lines (ctrl+o to expand)
+
+⏺ Write(docs/dev/security.md)
+  ⎿  Wrote 56 lines to docs/dev/security.md
+       1 # Security
+       2 
+       3 How the OWASP Top 10:2025 applies to Skill Scope. The core promi
+         se: raw Sessions, code and model
+       4 keys never leave the user's machine.
+       5 
+       6 ## OWASP Top 10:2025
+       7 
+       8 **A01 Broken Access Control** (now includes SSRF)
+       9 The team server must isolate teams: every query is scoped by tea
+     … +48 lines (~2 KB) (ctrl+o to expand)
+
+⏺ Bash(wc -l CLAUDE.md docs/dev/workflow.md docs/dev/security.md; echo ---; grep
+      -n '@docs\|@GLOSSARY' CLAUDE.md; echo ---; pnpm exec prettier --check
+      CLAUDE.md; pnpm…)
+  ⎿       136 CLAUDE.md
+           56 docs/dev/workflow.md
+           56 docs/dev/security.md
+     … +31 lines (ctrl+o to expand)
+
+⏺ I rewrote CLAUDE.md and added docs/dev/workflow.md and docs/dev/security.md.
+  All the checks pass, and nothing is committed.
+
+  Line counts
+  136 CLAUDE.md
+   56 docs/dev/workflow.md
+   56 docs/dev/security.md
+  CLAUDE.md is 136 lines, a bit under the ~150 target and well within the 200
+  limit. I could add more if you want it closer to 150, but it already covers
+  all seven items you listed.
+
+  Checks
+  - Imports: all four @ imports are on lines 7–11.
+  - pnpm format:check: passes for the whole repo. Your untracked hw4-01-plan.md
+    is no longer in the working tree, so nothing fails now.
+  - pnpm lint: passes with no errors.
+  - Prettier: as agreed, docs/dev/ is left unformatted because docs/ is already
+    in the Prettier ignore list.
+
+  git status
+  On branch docs/2-claude-md
+          modified:   CLAUDE.md
+  Untracked files:
+          docs/dev/
+
+  Your answers, applied
+  - The architecture section says "Claude Code only for now; the PRD lists the
+    longer-term batch". The PRD is unchanged.
+  - The Definition of Done item reads "CI is green (CI not set up yet, see #3)".
+  - security.md follows the OWASP Top 10:2025 order, and A01 notes that it now
+    includes SSRF.
+
+  Additions beyond your list
+  - In CLAUDE.md:
+    - A pnpm audit --audit-level high line in Commands, so the audit step in the
+      Definition of Done has a command to run.
+    - Concrete examples of test data that should be filtered out: Sessions from
+      before installation, Skills that were never relevant, Rule Items that
+      don't apply, malformed log lines and unapproved excerpts.
+  - In workflow.md:
+    - A rule against git add -A / git add ., to go with staging files by name.
+    - A reason for using merge commits: they keep the test → feat → refactor
+      history.
+  - In security.md: a six-item review checklist at the end, which the Definition
+    of Done points to.
+
+✻ Cogitated for 1m 1s · done 9:40 PM
+
+※ recap: For issue #2, I revised CLAUDE.md (now 136 lines) and added docs/dev/workflow.md and docs/dev/security.md, and format and lint both pass. Next, review the three files and say whether to commit them. (turn off recaps in /config)
+
+❯ Commit it on this branch following the workflow                               
+
+⏺ Bash(git add CLAUDE.md docs/dev/workflow.md docs/dev/security.md && git diff
+      --cached --stat)
+  ⎿   CLAUDE.md            | 125 ++++++++++++++++++++++++++++++++++++++++++
+     ++-------
+      docs/dev/security.md |  56 +++++++++++++++++++++++
+     … +2 lines (ctrl+o to expand)
+
+⏺ Bash(git commit -q -F - <<'EOF'
+      docs(claude): expand CLAUDE.md with imported workflow and security (#2)…)
+  ⎿  9d29499 docs(claude): expand CLAUDE.md with imported workflow and secu
+     rity (#2)
+
+⏺ I committed the changes on docs/2-claude-md as 9d29499, with this message
+  title:
+
+  docs(claude): expand CLAUDE.md with imported workflow and security (#2)
+
+  I followed the workflow:
+  - The three files were staged by name, and I checked the staged list first
+    with git diff --cached --stat: 3 files, +220/−17.
+  - The title is 71 characters, under the 72 limit, with docs as the type,
+    claude as the scope and one issue number.
+  - The message ends with the Co-Authored-By line.
+
+  The working tree is clean. I haven't pushed; tell me when you want it pushed
+  or a PR opened.
+
+✻ Worked for 13s · done 9:46 PM
