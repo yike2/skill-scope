@@ -6,7 +6,7 @@ Research as of 2026-11-19, for reference when writing Session Readers. What you 
 |---|---|---|---|
 | Claude Code | `~/.claude/projects/<slug>/<uuid>.jsonl`; subagents under `<uuid>/subagents/` | `Skill` tool call; also `skill_listing` (skills offered in this session) and `instructions` (rule files loaded) records | Local logs |
 | Codex CLI | `~/.codex/sessions/YYYY/MM/DD/rollout-*.jsonl` | No dedicated tool; shows up as a shell read of SKILL.md | Official docs |
-| Antigravity | `~/.gemini/antigravity/brain/<uuid>/.system_generated/logs/transcript.jsonl` | `read_file` of `.../skills/<name>/SKILL.md` | Local logs |
+| Antigravity | `~/.gemini/antigravity/brain/<uuid>/.system_generated/logs/transcript_full.jsonl` (`transcript.jsonl` cuts fields at about 4 KB) | `read_file` of `.../skills/<name>/SKILL.md` | Local logs |
 | DeepSeek Harness (`dsh`) | `$DSH_HOME/sessions/*/session.jsonl.zstd` | Unknown | Secondary sources |
 | WorkBuddy / CodeBuddy | Possibly the same layout as Claude Code | Docs mention a Skill tool | Official docs |
 | Gemini CLI | `~/.gemini/tmp/<project_hash>/chats/*.json` | `activate_skill` tool | Official docs |

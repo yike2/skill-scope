@@ -12,7 +12,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Skill Scope evaluates how **Skills**, **Subagents** and individual **Rule Items** perform in
 _real_ coding-agent Sessions, and compares Evaluation Results across versions of those files.
-The repo is at an early stage: only the tooling skeleton and a placeholder `packages/core` exist.
+The repo is at an early stage: the tooling skeleton, a placeholder `packages/core` and
+`packages/session-reader` exist.
 
 ## Core principles: KISS and YAGNI
 
@@ -40,9 +41,10 @@ These come first. When another rule or a skill pulls toward more, they win.
   content, code or model keys.
 - **Versions are recorded at Session start** by a hook (Skill, Subagent and Rule File versions).
   Sessions from before installation are not processed.
-- **Agents:** Claude Code only for now; the PRD lists the longer-term batch. Other agents plug in
-  later through the same Session Reader interface, so keep agent-specific parsing inside that
-  agent's Session Reader.
+- **Agents:** Claude Code and Antigravity for now; the PRD lists the longer-term batch. Other
+  agents plug in later as another plain Session Reader function returning the same `Session`
+  shape (`docs/tech/session-reader.md`), so keep agent-specific parsing inside that agent's
+  Session Reader.
 - Agent log formats and hook mechanisms are not stable public interfaces; treat parsing as
   fallible and test Session Readers against real logs.
 
@@ -56,7 +58,7 @@ Current:
 
 Planned (not created yet; don't scaffold unless the task asks):
 
-- Packages: session-reader, grader, cli, daemon
+- Packages: grader, cli, daemon
 - Local store: SQLite
 - `apps/web`: Next.js + Postgres + auth (team server and web UI)
 - Deployment: **TBD**. Either the partner's VPS (Docker Compose + Caddy) as in our previous

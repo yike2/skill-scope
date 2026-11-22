@@ -43,7 +43,8 @@ Log events (login, registration, upload, failures), never Session content, promp
 or keys. Log auth failures and cross-team access attempts on the server.
 
 **A10 Mishandling of Exceptional Conditions**
-Session Reader parse failures fail closed: skip the Session, never upload partial raw data. Hooks must
+Session Reader parse failures: malformed lines are skipped with warnings; the whole Session is
+skipped only when its main log cannot be read; partial raw data is never uploaded. Hooks must
 never block, slow down or crash the agent; errors are caught and logged locally.
 
 ## Review checklist (Definition of Done)

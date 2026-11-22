@@ -53,7 +53,7 @@ Each invocation has a `source`: `user` when the person asked for the Skill, `mod
 | ----- | --------- | -------- |
 | Claude Code | `Skill` tool call | `model` |
 | Claude Code | `Skill` tool call for a Skill the user named in the prompt (`skill_mention` attachment since the last typed prompt) | `user` |
-| Claude Code | Typed `/<name>` command followed by the Skill body with no `sourceToolUseID` | `user` |
+| Claude Code | Typed `/<name>` command followed by the Skill body with no `sourceToolUseID`; the invocation sits at the command record | `user` |
 | Antigravity | `read_file` whose path ends in `/skills/<name>/SKILL.md` | `unknown` |
 | Antigravity | `run_command` whose first word is a read command (`cat`, `head`, `tail`, `less`, `more`, `bat`, `sed`, `type`, `Get-Content`) with an argument ending in `/skills/<name>/SKILL.md` | `unknown` |
 | Antigravity | Either read above, after a typed `/<name>` for the same Skill and before the next typed prompt | `user` |
@@ -66,6 +66,7 @@ Not invocations:
 - Skill bodies injected again after compaction (`invoked_skills`) or by a hook (`hook_additional_context`).
 - Other files in a Skill folder, such as `references/*.md`.
 - `ls`, `grep`, `find`, `rg` or other commands that only mention a `SKILL.md` path.
+- A shell command that writes to a `SKILL.md` through a redirect (`cat > .../SKILL.md`).
 - An Antigravity `/<name>` with no later read of that Skill.
 
 The path rule `/skills/<name>/SKILL.md` covers every Antigravity Skill location in the official docs (`.agents/skills/`, `.agent/skills/`, `~/.gemini/config/skills/`, `~/.gemini/antigravity/builtin/skills/` and the others). The Antigravity shell and slash-command rules follow the docs; no real log sample exists yet.
@@ -83,6 +84,8 @@ The path rule `/skills/<name>/SKILL.md` covers every Antigravity Skill location 
 | ----- | ----------------------------------------------- |
 | Claude Code | `meta.toolUseId` equals the `id` of an `Agent` tool call in the main log |
 | Antigravity | The first `invoke_subagent` result whose output contains `"conversationId": "<childId>"`. `manage_subagents` and `send_message` results also name child ids and are not used. `spawnStepIndex` is not used because siblings can share it |
+
+An Antigravity `subagents/<childId>.json` whose `childId` is not a plain id (letters, digits, `_`, `-`) or names a Session already being read (itself or one of its parents, as in an A → B → A loop) is skipped with a warning, so the reader never leaves the brain folder or loops.
 
 A Subagent Session that cannot be linked (no `meta.json`, no `toolUseId`, for example when a slash command started it, or no matching call) goes into `unlinkedSubagents` with a warning. Only Subagents spawned by the main agent are linked; a Subagent spawned by another Subagent lands in `unlinkedSubagents`.
 
@@ -136,7 +139,7 @@ flowchart LR
 
 1. Read `transcript_full.jsonl` with `readJsonl`.
 2. Walk the records in order:
-   - `USER_INPUT` becomes a `UserEvent` with `meta: false`; its text is the part inside `<USER_REQUEST>` when present (`<ADDITIONAL_METADATA>` and `<USER_SETTINGS_CHANGE>` are dropped).
+   - `USER_INPUT` becomes a `UserEvent` with `meta: false`; its text is the part inside `<USER_REQUEST>` when present, trimmed (`<ADDITIONAL_METADATA>` and `<USER_SETTINGS_CHANGE>` are dropped).
    - `SYSTEM_MESSAGE` becomes a `UserEvent` with `meta: true`.
    - `PLANNER_RESPONSE` becomes an `AssistantEvent`; each of its `tool_calls` becomes a `ToolCallEvent` with id `<line>:<n>`, because `step_index` can repeat.
    - Each `GENERIC` record is the result of the oldest pending tool call of the preceding `PLANNER_RESPONSE` (Antigravity writes results in call order). `status: "ERROR"` sets `isError`.
