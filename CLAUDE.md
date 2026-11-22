@@ -171,5 +171,6 @@ Don't:
   diagram, edit `candidate.json` and re-finalize in place, `meta.locale: "en"`,
   `visual_preset: "editorial"`, run `default-light.py` after every finalize; `index.*.json`
   receipts are git-ignored).
+- `docs/tech/`: one design doc per module, written from `docs/tech/TEMPLATE.md`.
 - `docs/evidence/`: session logs and screenshots per assignment.
 - Git workflow (branches, commits, PRs): see `docs/dev/workflow.md`.
