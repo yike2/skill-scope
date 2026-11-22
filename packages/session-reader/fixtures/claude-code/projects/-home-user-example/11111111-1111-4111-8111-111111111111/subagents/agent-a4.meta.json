@@ -1,0 +1,9 @@
+{
+  "agentType": "general-purpose",
+  "isBuiltIn": true,
+  "description": "Placeholder unmatched task",
+  "toolUseId": "toolu_01NoSuchCallXXXXXXXXXXXX",
+  "spawnDepth": 1,
+  "model": "claude-opus-5-5",
+  "finished": true
+}

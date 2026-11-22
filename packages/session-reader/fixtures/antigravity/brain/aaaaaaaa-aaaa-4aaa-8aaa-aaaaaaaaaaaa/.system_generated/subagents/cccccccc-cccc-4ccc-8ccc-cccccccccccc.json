@@ -1,0 +1,10 @@
+{
+  "conversationId": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+  "subagentDescriptor": {
+    "typeName": "self",
+    "role": "Placeholder role C"
+  },
+  "state": "SUBAGENT_STATE_KILLED",
+  "spawnStepIndex": 5,
+  "workspaceUris": ["file:///home/user/example"]
+}

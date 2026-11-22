@@ -1,0 +1,8 @@
+{
+  "agentType": "Explore",
+  "isBuiltIn": true,
+  "description": "Placeholder slash-command task",
+  "spawnDepth": 1,
+  "model": "claude-opus-5-5",
+  "finished": true
+}

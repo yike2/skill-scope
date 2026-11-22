@@ -1,0 +1,10 @@
+{
+  "agentType": "general-purpose",
+  "isBuiltIn": true,
+  "description": "Placeholder Subagent task",
+  "toolUseId": "toolu_01AgentOneXXXXXXXXXXXXXX",
+  "spawnDepth": 1,
+  "requestShape": "background",
+  "model": "claude-opus-5-5",
+  "finished": true
+}
