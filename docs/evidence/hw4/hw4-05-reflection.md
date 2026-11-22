@@ -9,7 +9,28 @@ We already worked this way in project 2, and this workflow worked for us:
 3. Test cases. Next, I ask the AI to write a short description of every test case, and I check whether they cover the business logic. This way I do not have to read long test code. The AI is good at writing code, but it can miss parts of the business logic, and a list of descriptions makes those gaps easy to find.
 4. Implement with TDD. Then we follow TDD: the failing tests come first, and the implementation comes after. Since the plan and the test cases have already been reviewed, the big decisions are settled before any code is written, so the code rarely drifts from the design. So I no longer review the code myself. Instead, a subagent reviews it, and the fixes and commits happen automatically.
 
+The Session Reader feature shows each step at work. Before the design interview, the agent
+surveyed the record types in real local logs, and a research subagent read the source code of
+Codex and DeepSeek Harness; the resulting comparison table led to a key decision, keeping "not
+recorded" distinct from "recorded but empty". In the plan step, a separate reviewer checked the plan
+against real logs and found two factual errors that would have become bugs: the records of one
+model reply are not always adjacent, so tokens would have been counted twice, and Antigravity's
+`step_index` repeats, so tool call ids would have collided. The test case list had 119 short
+descriptions, including items that must be filtered out, such as decoy files and malformed lines;
+its reviewer corrected one expected value that contradicted real logs. During TDD, a code reviewer
+that was not the author found a path escape, an infinite recursion on self-reference, and shell
+writes to `SKILL.md` being counted as reads. Each of these got a failing test before the fix.
+
+The project setup showed the same benefit with Plan mode as the planning step. For the CI pipeline,
+Claude first explored the repo and looked up the release of each GitHub Action with `gh` instead of
+relying on memory, then wrote a plan that ended with open questions, which we answered before any
+file changed. Decisions such as excluding `docs/` from Prettier, enforcing the 70% coverage
+threshold from day one and pinning actions to commit SHAs were settled by us at the plan stage
+rather than guessed by the model during implementation.
+
 ## 2. Context Management Strategies That Worked Best
+
+### gzm
 
 The strategy that worked best was to keep one parent agent Session and let it delegate work to subagents. With this setup, I no longer have to switch between Sessions again and again. The parent agent already knows the task, so it gives each subagent the context it needs, and I do not have to copy and paste anything myself. 
 
@@ -17,6 +38,32 @@ At the same time, the heavy work happens inside the subagents, so the parent age
 
 I do not like to use `/clear`. I prefer to start a new Session instead. Sometimes I only stop needing a context for a while, and I may want to come back to it later. If I clear it, that context is gone.
 
-## 3. Annotated Session Log
+### yike
 
-See the annotated Session log in [hw4-04-session-reader.md](hw4-04-session-reader.md) ("Session log: Session Reader design and implementation").
+In the setup Sessions I used the built-in commands, each in a different situation. After `/init`,
+I ran `/compact` with a focus instruction ("keep only what you learned about this repo's structure,
+tooling and conventions"), because that knowledge was still needed to revise CLAUDE.md while the
+raw command output was not. Before the permissions task I used `/clear`, since nothing from the
+CLAUDE.md work was needed there. Permission rules only load when a Session starts, so testing them
+needed a fresh Session anyway. Finally, `claude --continue` resumed the CI Session after `/exit` so
+I could export it.
+
+Our two approaches point the same way: keep each context small and tied to one task. Starting a new
+Session, as gzm prefers, keeps the old one available to come back to; `/clear` is quicker when the
+old context will not be needed again.
+
+What context management did not solve is the prompt itself. Each prompt we gave Claude Code
+repeated part of the same content: which files may change, not to commit, to list unclear points as
+open questions, and to show a plan and wait for approval. Some of this already lives in CLAUDE.md,
+but the task-level template was still written by hand each time, and a hand-written prompt can
+leave a constraint out. These templates could become skills, for example one for adding a feature
+and one for opening a PR, so that the full template is used every time and a missed step is fixed
+once in the skill rather than in every prompt. A skill is still an instruction rather than an
+enforcement mechanism, though, so it does not guarantee that every step is followed. Rules that
+must never be broken, such as never reading `.env` files, would still need permission rules or
+hooks, which Claude Code enforces regardless of the prompt.
+
+## 3. Annotated Session Logs
+
+- Parts 2 and 3: [hw4-04-session-reader.md](hw4-04-session-reader.md) ("Session log: Session Reader design and implementation").
+- Part 1: [hw4-06-setup-session-log.md](hw4-06-setup-session-log.md) ("Session log: Claude Code project setup").
