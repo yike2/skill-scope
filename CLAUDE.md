@@ -7,7 +7,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - @docs/prd.md: product requirements, user stories, scope and what is out of scope.
 - @GLOSSARY.md: the project's terms. Use them, and avoid the alternatives it lists ("Session" not
   "transcript", "Grader" not "judge", "Evaluation Result" not "score", "Rule Item" not "rule").
-- @docs/dev/workflow.md: branch names, commit format, staging, PR template, merging, evidence.
+- @docs/dev/workflow.md: feature workflow, branch names, commit format, staging, PR template,
+  merging.
 - @docs/dev/security.md: OWASP Top 10:2025 as it applies to Skill Scope, plus the review checklist.
 
 Skill Scope evaluates how **Skills**, **Subagents** and individual **Rule Items** perform in
@@ -113,28 +114,7 @@ There is no build step: packages export their TypeScript source directly
 
 ## Feature workflow
 
-The parent agent orchestrates and talks to the user. Planning, writing tests, implementing and
-reviewing each run in a **new subagent**, so every review comes from an agent that did not write
-the work. To fix work after a review, or to re-review after a fix, continue the original subagent
-(`SendMessage`) instead of starting a new one.
-
-1. **Explore**: run the `grilling` or `brainstorming` skill with the user until the scope is
-   settled and open questions are listed.
-2. **Plan**: a new subagent writes the plan.
-3. **Plan review**: a new subagent reviews the plan; the planner applies the fixes; the user
-   reviews and approves.
-4. **Test case list**: a new subagent writes one description per test case, including items that
-   should be filtered out (see Testing strategy).
-5. **Test case list review**: a new subagent reviews the list; its author applies the fixes; the
-   user reviews and approves.
-6. **Test files**: a new subagent writes the test files from the approved list. They fail (red).
-7. **Test review**: a new subagent reviews the test files; the test author applies the fixes;
-   commit `test(...)`.
-8. **Implement**: a new subagent implements; a new subagent reviews the code; the implementer
-   applies the fixes until the review is clean and all Definition of Done checks are green.
-9. **Commit**: `feat(...)`, then `refactor(...)` if the review led to one.
-
-The commits in steps 7 and 9 need no extra approval. Push and merge still do.
+Follow the subagent-driven Feature workflow in `docs/dev/workflow.md`.
 
 ## Do's and don'ts
 
@@ -174,5 +154,4 @@ Don't:
   `visual_preset: "editorial"`, run `default-light.py` after every finalize; `index.*.json`
   receipts are git-ignored).
 - `docs/tech/`: one design doc per module, written from `docs/tech/TEMPLATE.md`.
-- `docs/evidence/`: session logs and screenshots per assignment.
 - Git workflow (branches, commits, PRs): see `docs/dev/workflow.md`.
