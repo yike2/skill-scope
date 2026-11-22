@@ -97,6 +97,31 @@ There is no build step: packages export their TypeScript source directly
   Sessions from before installation, Skills that were never relevant, Rule Items that don't
   apply, malformed log lines, excerpts the user did not approve.
 
+## Feature workflow
+
+The parent agent orchestrates and talks to the user. Planning, writing tests, implementing and
+reviewing each run in a **new subagent**, so every review comes from an agent that did not write
+the work. To fix work after a review, or to re-review after a fix, continue the original subagent
+(`SendMessage`) instead of starting a new one.
+
+1. **Explore**: run the `grilling` or `brainstorming` skill with the user until the scope is
+   settled and open questions are listed.
+2. **Plan**: a new subagent writes the plan.
+3. **Plan review**: a new subagent reviews the plan; the planner applies the fixes; the user
+   reviews and approves.
+4. **Test case list**: a new subagent writes one description per test case, including items that
+   should be filtered out (see Testing strategy).
+5. **Test case list review**: a new subagent reviews the list; its author applies the fixes; the
+   user reviews and approves.
+6. **Test files**: a new subagent writes the test files from the approved list. They fail (red).
+7. **Test review**: a new subagent reviews the test files; the test author applies the fixes;
+   commit `test(...)`.
+8. **Implement**: a new subagent implements; a new subagent reviews the code; the implementer
+   applies the fixes until the review is clean and all Definition of Done checks are green.
+9. **Commit**: `feat(...)`, then `refactor(...)` if the review led to one.
+
+The commits in steps 7 and 9 need no extra approval. Push and merge still do.
+
 ## Do's and don'ts
 
 Do:
@@ -111,7 +136,7 @@ Don't:
 - Read or print `.env` files, tokens, model keys or other secrets.
 - Work around the permission rules in `.claude/settings.json` (shared; personal overrides go in
   the git-ignored `.claude/settings.local.json`).
-- Commit, push or merge without explicit approval.
+- Commit, push or merge without explicit approval (except the Feature workflow commits).
 - Edit `docs/` or `GLOSSARY.md` unless the task is about them. `docs/`, `GLOSSARY.md` and
   `pnpm-lock.yaml` are excluded from Prettier and ESLint on purpose: never reformat them.
 - Scaffold planned packages or pick a deployment target unprompted.
