@@ -688,5 +688,45 @@ describe('readAntigravitySession', () => {
         await chmod(file, 0o644);
       }
     });
+
+    it('AG-44 skips a child that names a Session already being read (A -> B -> A)', async () => {
+      const created = [
+        'Created the following subagent:',
+        JSON.stringify({ conversationId: B }, null, 2),
+      ].join('\n');
+      const { root, dir, subagents } = await tempBrain([
+        exchange[0] as string,
+        record(2, 'PLANNER_RESPONSE', {
+          input_tokens: 1,
+          output_tokens: 2,
+          tool_calls: [
+            {
+              name: 'invoke_subagent',
+              args: { Prompt: 'Placeholder', Role: 'Placeholder role', TypeName: 'self' },
+            },
+          ],
+        }),
+        record(3, 'GENERIC', { content: created }),
+      ]);
+      await mkdir(subagents, { recursive: true });
+      await writeFile(join(subagents, `${B}.json`), childJson(B));
+      const childDir = join(root, 'brain', B);
+      await writeLog(childDir, exchange);
+      const childSubagents = join(childDir, '.system_generated', 'subagents');
+      await mkdir(childSubagents, { recursive: true });
+      await writeFile(join(childSubagents, `${A}.json`), childJson(A));
+
+      const s = await readAntigravitySession(dir);
+
+      expect(s.warnings).toEqual([]);
+      expect(s.unlinkedSubagents).toEqual([]);
+      const child = toolCall(s, '2:0').subagent?.session;
+      expect(child?.sessionId).toBe(B);
+      expect(child?.warnings).toHaveLength(1);
+      expect(child?.warnings[0]).toEqual({ reason: expect.any(String) });
+      expect(child?.warnings[0]?.reason).not.toContain(A);
+      expect(child?.unlinkedSubagents).toEqual([]);
+      expect(child?.events.filter((e) => e.type === 'tool_call' && e.subagent)).toEqual([]);
+    }, 1000);
   });
 });
