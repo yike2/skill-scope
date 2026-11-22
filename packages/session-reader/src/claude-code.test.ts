@@ -1,10 +1,23 @@
+import { chmod, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import { readClaudeCodeSession } from './claude-code.js';
 import type { AssistantEvent, Session, SessionEvent, ToolCallEvent, UserEvent } from './session.js';
+
+// Temp dirs the tests create; removed after each test.
+const roots: string[] = [];
+
+async function tempDir(prefix: string): Promise<string> {
+  const dir = await mkdtemp(join(tmpdir(), prefix));
+  roots.push(dir);
+  return dir;
+}
+
+afterEach(() => Promise.all(roots.splice(0).map((r) => rm(r, { recursive: true, force: true }))));
 
 // Fixtures: fixtures/claude-code/projects/-home-user-example/. Every enveloped record's
 // timestamp is 2026-11-22T01:00:00Z plus its 1-based line number in seconds, so ts(line) below
@@ -958,5 +971,130 @@ describe('readClaudeCodeSession', () => {
       expect(toolCall(s, tid('AgentOne')).subagent?.session.sessionId).toBe('agent-a1');
       expect(s.warnings).toHaveLength(MAIN_WARNING_COUNT);
     });
+  });
+
+  describe('records and files found in review', () => {
+    // These cases build their own small Session in a temp dir.
+    const asRoot = process.getuid?.() === 0;
+    const SID = '44444444-4444-4444-8444-444444444444';
+
+    function envelope(line: number, record: Record<string, unknown>): string {
+      return JSON.stringify({
+        parentUuid: null,
+        isSidechain: false,
+        ...record,
+        uuid: `00000000-0000-4000-8000-${String(line).padStart(12, '0')}`,
+        timestamp: ts(line),
+        cwd: '/home/user/example',
+        sessionId: SID,
+        version: '2.1.330',
+        gitBranch: 'feat/1-example',
+      });
+    }
+
+    const prompt = (line: number) =>
+      envelope(line, {
+        type: 'user',
+        message: { role: 'user', content: 'Placeholder temp prompt.' },
+      });
+    const agentCall = (line: number) =>
+      envelope(line, {
+        type: 'assistant',
+        message: {
+          id: 'msg_01TempXXXXXXXXXXXXXXXXXX',
+          model: 'claude-opus-5-5',
+          role: 'assistant',
+          content: [
+            {
+              type: 'tool_use',
+              id: tid('TempAgent'),
+              name: 'Agent',
+              input: {
+                description: 'Placeholder',
+                prompt: 'Placeholder',
+                subagent_type: 'Explore',
+              },
+            },
+          ],
+          usage: { input_tokens: 1, output_tokens: 2 },
+        },
+      });
+
+    async function tempSession(lines: string[]): Promise<{ dir: string; path: string }> {
+      const dir = await tempDir('session-reader-cc-');
+      const path = join(dir, `${SID}.jsonl`);
+      await writeFile(path, lines.join('\n') + '\n');
+      return { dir, path };
+    }
+
+    it('CC-78 warns once for a user record with no message.content and adds no event', async () => {
+      const { path } = await tempSession([
+        prompt(1),
+        envelope(2, { type: 'user', message: { role: 'user' } }),
+        envelope(3, {
+          type: 'assistant',
+          message: {
+            id: 'msg_01TempAnswerXXXXXXXXXXXX',
+            model: 'claude-opus-5-5',
+            role: 'assistant',
+            content: [{ type: 'text', text: 'Placeholder temp answer.' }],
+            usage: { input_tokens: 1, output_tokens: 2 },
+          },
+        }),
+      ]);
+
+      const s = await readClaudeCodeSession(path);
+
+      expect(s.warnings).toEqual([{ line: 2, reason: expect.any(String) }]);
+      expect(s.events.map((e) => [e.type, e.timestamp])).toEqual([
+        ['user', ts(1)],
+        ['assistant', ts(3)],
+      ]);
+    });
+
+    it.skipIf(asRoot)('CC-79 warns once for an unreadable subagents folder', async () => {
+      const { dir, path } = await tempSession([prompt(1), agentCall(2)]);
+      const folder = join(dir, SID, 'subagents');
+      await mkdir(folder, { recursive: true });
+      await writeFile(join(folder, 'agent-t1.jsonl'), prompt(1) + '\n');
+      await chmod(folder, 0o000);
+
+      try {
+        const s = await readClaudeCodeSession(path);
+
+        expect(s.warnings).toEqual([{ reason: expect.any(String) }]);
+        expect(s.events.map((e) => e.type)).toEqual(['user', 'assistant', 'tool_call']);
+        expect(s.unlinkedSubagents).toEqual([]);
+      } finally {
+        await chmod(folder, 0o755);
+      }
+    });
+
+    it.skipIf(asRoot)(
+      'CC-80 warns once for an unreadable Subagent log and still parses the parent',
+      async () => {
+        const { dir, path } = await tempSession([prompt(1), agentCall(2)]);
+        const folder = join(dir, SID, 'subagents');
+        await mkdir(folder, { recursive: true });
+        const log = join(folder, 'agent-t1.jsonl');
+        await writeFile(log, prompt(1) + '\n');
+        await writeFile(
+          join(folder, 'agent-t1.meta.json'),
+          JSON.stringify({ agentType: 'Explore', toolUseId: tid('TempAgent') }),
+        );
+        await chmod(log, 0o000);
+
+        try {
+          const s = await readClaudeCodeSession(path);
+
+          expect(s.warnings).toEqual([{ reason: expect.any(String) }]);
+          expect(s.events.map((e) => e.type)).toEqual(['user', 'assistant', 'tool_call']);
+          expect('subagent' in toolCall(s, tid('TempAgent'))).toBe(false);
+          expect(s.unlinkedSubagents).toEqual([]);
+        } finally {
+          await chmod(log, 0o644);
+        }
+      },
+    );
   });
 });

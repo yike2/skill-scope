@@ -1,13 +1,24 @@
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdtemp, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import { readJsonl } from './jsonl.js';
 
+// Temp dirs the tests create; removed after each test.
+const roots: string[] = [];
+
+async function tempDir(prefix: string): Promise<string> {
+  const dir = await mkdtemp(join(tmpdir(), prefix));
+  roots.push(dir);
+  return dir;
+}
+
+afterEach(() => Promise.all(roots.splice(0).map((r) => rm(r, { recursive: true, force: true }))));
+
 async function inline(content: string): Promise<string> {
-  const dir = await mkdtemp(join(tmpdir(), 'session-reader-jsonl-'));
+  const dir = await tempDir('session-reader-jsonl-');
   const path = join(dir, 'log.jsonl');
   await writeFile(path, content);
   return path;
@@ -127,7 +138,7 @@ describe('readJsonl', () => {
     });
 
     it('J-12 rejects with ENOENT for a path that does not exist', async () => {
-      const dir = await mkdtemp(join(tmpdir(), 'session-reader-jsonl-'));
+      const dir = await tempDir('session-reader-jsonl-');
 
       await expect(readJsonl(join(dir, 'missing.jsonl'))).rejects.toMatchObject({
         code: 'ENOENT',

@@ -1,10 +1,23 @@
+import { chmod, mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import { readAntigravitySession } from './antigravity.js';
 import type { AssistantEvent, Session, SessionEvent, ToolCallEvent, UserEvent } from './session.js';
+
+// Temp dirs the tests create; removed after each test.
+const roots: string[] = [];
+
+async function tempDir(prefix: string): Promise<string> {
+  const dir = await mkdtemp(join(tmpdir(), prefix));
+  roots.push(dir);
+  return dir;
+}
+
+afterEach(() => Promise.all(roots.splice(0).map((r) => rm(r, { recursive: true, force: true }))));
 
 // Fixtures: fixtures/antigravity/brain/. Every record's created_at is 2026-11-15T06:00:00Z plus
 // its 1-based line number in seconds, so ts(line) below names the record a value must come from.
@@ -530,6 +543,150 @@ describe('readAntigravitySession', () => {
       expect(message).toContain('ENOENT');
       expect(message).not.toContain('Placeholder');
       expect(message).not.toContain('DECOY_NO_FULL_TRANSCRIPT_MARKER');
+    });
+  });
+
+  describe('paths, shell writes and files found in review', () => {
+    // These cases build their own brain folder in a temp dir: <root>/brain/<id>/.
+    const asRoot = process.getuid?.() === 0;
+    const A = '11111111-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
+    const B = '22222222-bbbb-4bbb-8bbb-bbbbbbbbbbbb';
+
+    function record(line: number, type: string, extra: Record<string, unknown>): string {
+      return JSON.stringify({
+        step_index: line - 1,
+        source: type === 'USER_INPUT' ? 'USER_EXPLICIT' : 'MODEL',
+        type,
+        status: 'DONE',
+        created_at: ts(line),
+        ...extra,
+      });
+    }
+
+    const exchange = [
+      record(1, 'USER_INPUT', {
+        content: '<USER_REQUEST>\nPlaceholder temp request.\n</USER_REQUEST>',
+      }),
+      record(2, 'PLANNER_RESPONSE', {
+        content: 'Placeholder temp answer.',
+        input_tokens: 1,
+        output_tokens: 2,
+      }),
+    ];
+
+    async function writeLog(dir: string, lines: string[]): Promise<void> {
+      const logs = join(dir, '.system_generated', 'logs');
+      await mkdir(logs, { recursive: true });
+      await writeFile(join(logs, 'transcript_full.jsonl'), lines.join('\n') + '\n');
+    }
+
+    async function tempBrain(
+      lines: string[],
+    ): Promise<{ root: string; dir: string; subagents: string }> {
+      const root = await tempDir('session-reader-ag-');
+      const dir = join(root, 'brain', A);
+      await writeLog(dir, lines);
+      const subagents = join(dir, '.system_generated', 'subagents');
+      return { root, dir, subagents };
+    }
+
+    function childJson(id: string): string {
+      return JSON.stringify({
+        conversationId: id,
+        subagentDescriptor: { typeName: 'self', role: 'Placeholder role' },
+      });
+    }
+
+    it('AG-39 skips a subagents file whose child id is ".." with one warning', async () => {
+      const { root, dir, subagents } = await tempBrain(exchange);
+      await mkdir(subagents, { recursive: true });
+      await writeFile(join(subagents, '...json'), childJson('..'));
+      // What "<brain>/.." would resolve to: a log outside the brain folder.
+      await writeLog(root, [
+        record(1, 'USER_INPUT', {
+          content: '<USER_REQUEST>\nOUTSIDE_BRAIN_MARKER\n</USER_REQUEST>',
+        }),
+      ]);
+
+      const s = await readAntigravitySession(dir);
+
+      expect(s.warnings).toEqual([{ reason: expect.any(String) }]);
+      expect(s.unlinkedSubagents).toEqual([]);
+      expect(JSON.stringify(s)).not.toContain('OUTSIDE_BRAIN_MARKER');
+    });
+
+    it('AG-40 skips a subagents file that names the Session itself with one warning', async () => {
+      const { dir, subagents } = await tempBrain(exchange);
+      await mkdir(subagents, { recursive: true });
+      await writeFile(join(subagents, `${A}.json`), childJson(A));
+
+      const s = await readAntigravitySession(dir);
+
+      expect(s.warnings).toEqual([{ reason: expect.any(String) }]);
+      expect(s.unlinkedSubagents).toEqual([]);
+      expect(s.events.map((e) => e.type)).toEqual(['user', 'assistant']);
+    }, 1000);
+
+    it('AG-41 does not count a run_command that writes SKILL.md through a redirect', async () => {
+      const { dir } = await tempBrain([
+        exchange[0] as string,
+        record(2, 'PLANNER_RESPONSE', {
+          input_tokens: 1,
+          output_tokens: 2,
+          tool_calls: [
+            {
+              name: 'run_command',
+              args: {
+                CommandLine:
+                  "cat > /home/user/.agents/skills/example-skill/SKILL.md <<'EOF'\nPlaceholder\nEOF",
+                WaitMsBeforeAsync: 5000,
+                toolSummary: 'Placeholder summary',
+              },
+            },
+          ],
+        }),
+        record(3, 'GENERIC', { content: 'Placeholder command output.' }),
+      ]);
+
+      const s = await readAntigravitySession(dir);
+
+      expect(toolCall(s, '2:0').name).toBe('run_command');
+      expect(s.skillInvocations).toEqual([]);
+    });
+
+    it.skipIf(asRoot)('AG-42 warns once for an unreadable subagents folder', async () => {
+      const { dir, subagents } = await tempBrain(exchange);
+      await mkdir(subagents, { recursive: true });
+      await writeFile(join(subagents, `${B}.json`), childJson(B));
+      await chmod(subagents, 0o000);
+
+      try {
+        const s = await readAntigravitySession(dir);
+
+        expect(s.warnings).toEqual([{ reason: expect.any(String) }]);
+        expect(s.events.map((e) => e.type)).toEqual(['user', 'assistant']);
+      } finally {
+        await chmod(subagents, 0o755);
+      }
+    });
+
+    it.skipIf(asRoot)('AG-43 warns once for an unreadable subagents/<id>.json', async () => {
+      const { root, dir, subagents } = await tempBrain(exchange);
+      await writeLog(join(root, 'brain', B), exchange);
+      await mkdir(subagents, { recursive: true });
+      const file = join(subagents, `${B}.json`);
+      await writeFile(file, childJson(B));
+      await chmod(file, 0o000);
+
+      try {
+        const s = await readAntigravitySession(dir);
+
+        expect(s.warnings).toEqual([{ reason: expect.any(String) }]);
+        expect(s.unlinkedSubagents).toEqual([]);
+        expect(s.events.map((e) => e.type)).toEqual(['user', 'assistant']);
+      } finally {
+        await chmod(file, 0o644);
+      }
     });
   });
 });
