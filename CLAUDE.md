@@ -28,12 +28,12 @@ These come first. When another rule or a skill pulls toward more, they win.
 ## Architecture decisions
 
 - **Two run modes.**
-  - **Local mode**: the user starts grading manually through the CLI. The CLI calls the Adapter
-    and the Grader directly; results stay in the local store; no background process.
+  - **Local mode**: the user starts grading manually through the CLI. The CLI calls the Session
+    Reader and the Grader directly; results stay in the local store; no background process.
   - **Runtime connected mode**: Local mode plus a background Runtime daemon. The CLI logs in
     through the browser to get a token; the daemon registers with the team server, queues each
-    finished Session, runs Adapter → Grader, enforces the spending cap and uploads results read
-    from the local store.
+    finished Session, runs Session Reader → Grader, enforces the spending cap and uploads results
+    read from the local store.
 - **Grading is local.** The Grader runs on the user's machine with the user's own model key.
 - **Raw Sessions never leave the machine.** The server receives only Evaluation Results and
   excerpts the user explicitly approved. Never design a code path that uploads raw Session
@@ -41,9 +41,10 @@ These come first. When another rule or a skill pulls toward more, they win.
 - **Versions are recorded at Session start** by a hook (Skill, Subagent and Rule File versions).
   Sessions from before installation are not processed.
 - **Agents:** Claude Code only for now; the PRD lists the longer-term batch. Other agents plug in
-  later through the same adapter interface, so keep agent-specific parsing inside the adapter.
+  later through the same Session Reader interface, so keep agent-specific parsing inside that
+  agent's Session Reader.
 - Agent log formats and hook mechanisms are not stable public interfaces; treat parsing as
-  fallible and test adapters against real logs.
+  fallible and test Session Readers against real logs.
 
 ## Tech stack
 
@@ -55,7 +56,7 @@ Current:
 
 Planned (not created yet; don't scaffold unless the task asks):
 
-- Packages: adapter, grader, cli, daemon
+- Packages: session-reader, grader, cli, daemon
 - Local store: SQLite
 - `apps/web`: Next.js + Postgres + auth (team server and web UI)
 - Deployment: **TBD**. Either the partner's VPS (Docker Compose + Caddy) as in our previous

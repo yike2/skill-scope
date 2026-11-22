@@ -110,9 +110,9 @@
       ]
     },
     {
-      "id": "adapter",
+      "id": "session-reader",
       "type": "backend",
-      "label": "Adapter",
+      "label": "Session Reader",
       "sublabel": "logs → unified session",
       "pos": [
         520,
@@ -231,7 +231,7 @@
         "agent",
         "hook",
         "logs",
-        "adapter",
+        "session-reader",
         "daemon",
         "grader",
         "lstore",
@@ -254,7 +254,7 @@
       "wraps": [
         "cli",
         "hook",
-        "adapter",
+        "session-reader",
         "daemon",
         "grader",
         "lstore"
@@ -323,21 +323,21 @@
       "label": "start / end + versions"
     },
     {
-      "id": "daemon-adapter",
+      "id": "daemon-session-reader",
       "from": "daemon",
-      "to": "adapter",
+      "to": "session-reader",
       "label": "parse session",
       "variant": "emphasis"
     },
     {
-      "id": "logs-adapter",
+      "id": "logs-session-reader",
       "from": "logs",
-      "to": "adapter",
+      "to": "session-reader",
       "label": "transcripts"
     },
     {
-      "id": "adapter-grader",
-      "from": "adapter",
+      "id": "session-reader-grader",
+      "from": "session-reader",
       "to": "grader",
       "label": "unified session",
       "variant": "emphasis"

@@ -23,7 +23,7 @@ with `0600` permissions. Model keys are never uploaded.
 
 **A05 Injection**
 Parameterized SQL only, in both the local SQLite store and server Postgres. No shell
-interpolation of Session paths in hooks or adapters. Session content passed to the Grader is
+interpolation of Session paths in hooks or Session Readers. Session content passed to the Grader is
 untrusted input (prompt injection) and must not drive tool calls or uploads.
 
 **A06 Insecure Design**
@@ -43,7 +43,7 @@ Log events (login, registration, upload, failures), never Session content, promp
 or keys. Log auth failures and cross-team access attempts on the server.
 
 **A10 Mishandling of Exceptional Conditions**
-Adapter parse failures fail closed: skip the Session, never upload partial raw data. Hooks must
+Session Reader parse failures fail closed: skip the Session, never upload partial raw data. Hooks must
 never block, slow down or crash the agent; errors are caught and logged locally.
 
 ## Review checklist (Definition of Done)

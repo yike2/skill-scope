@@ -11,7 +11,7 @@ Every change is tracked by a GitHub issue.
 Format: `type(scope): summary (#issue)`
 
 - `type` is one of: `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, `ci`.
-- `scope` is required (e.g. `repo`, `claude`, `core`, `adapter`, `grader`).
+- `scope` is required (e.g. `repo`, `claude`, `core`, `session-reader`, `grader`).
 - The title is at most 72 characters and has exactly one issue number.
 - Example: `chore(repo): pnpm monorepo skeleton with lint, format and test tooling (#1)`
 - TDD order for feature work: `test(...)` with failing tests → `feat(...)` with the minimum

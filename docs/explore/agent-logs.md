@@ -1,6 +1,6 @@
 # Session logs and skill invocation by agent
 
-Research as of 2026-11-19, for reference when writing adapters. What you see on a real install when writing the adapter takes precedence.
+Research as of 2026-11-19, for reference when writing Session Readers. What you see on a real install when writing a Session Reader takes precedence.
 
 | Agent | Session logs | How a skill invocation appears in the log | Source |
 |---|---|---|---|

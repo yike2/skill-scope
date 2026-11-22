@@ -35,9 +35,9 @@
       "sublabel": "local process"
     },
     {
-      "id": "adapter",
+      "id": "session-reader",
       "type": "backend",
-      "label": "Adapter",
+      "label": "Session Reader",
       "sublabel": "unified session"
     },
     {
@@ -184,14 +184,14 @@
     {
       "id": "parse",
       "from": "daemon",
-      "to": "adapter",
+      "to": "session-reader",
       "y": 556,
       "label": "parse session",
       "variant": "emphasis"
     },
     {
       "id": "read",
-      "from": "adapter",
+      "from": "session-reader",
       "to": "agent",
       "y": 584,
       "label": "read transcript"
@@ -199,14 +199,14 @@
     {
       "id": "transcript",
       "from": "agent",
-      "to": "adapter",
+      "to": "session-reader",
       "y": 612,
       "label": "transcript",
       "variant": "return"
     },
     {
       "id": "unified",
-      "from": "adapter",
+      "from": "session-reader",
       "to": "grader",
       "y": 640,
       "label": "unified session",
@@ -312,7 +312,7 @@
       "type": "backend"
     },
     {
-      "participant": "adapter",
+      "participant": "session-reader",
       "from": 551,
       "to": 645,
       "type": "backend"
