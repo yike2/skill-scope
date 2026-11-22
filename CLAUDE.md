@@ -14,6 +14,17 @@ Skill Scope evaluates how **Skills**, **Subagents** and individual **Rule Items*
 _real_ coding-agent Sessions, and compares Evaluation Results across versions of those files.
 The repo is at an early stage: only the tooling skeleton and a placeholder `packages/core` exist.
 
+## Core principles: KISS and YAGNI
+
+These come first. When another rule or a skill pulls toward more, they win.
+
+- **KISS**: choose the simplest design that meets the current task. Plain functions and data over
+  classes, layers and patterns; one obvious way over a configurable one.
+- **YAGNI**: build only what the current task and its tests require. Add options, extension
+  points, abstractions and generalisations (other agents, the daemon, the server) only when a task
+  asks for them.
+- In review, code the task does not need is a finding, and removing it is the fix.
+
 ## Architecture decisions
 
 - **Two run modes.**
